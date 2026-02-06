@@ -9,7 +9,7 @@ import { useFavorites } from "./hook/useFavorates";
 
 const App = () => {
 
-  const [query, setquery] = useState("london");
+  const [query, setquery] = useState([]);
   const [page, setpage] = useState(1);
   const [shofavorite, setshofavorite] = useState(false);
 
