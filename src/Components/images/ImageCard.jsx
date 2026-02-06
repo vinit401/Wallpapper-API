@@ -1,68 +1,86 @@
-import React from "react";
-import { Download, Heart, Eye, View } from "lucide-react";
+import React, { useState } from "react";
+import { Download, Heart, Eye } from "lucide-react";
+import ImagePreviewModal from "./ImagePreviewModal";
 
 const ImageCard = ({ img, onToggleFavorite, isFavorite }) => {
+
+  const [showPreview, setShowPreview] = useState(false);
+
+  const handleDownload = async (url) => {
+    const res = await fetch(url);
+    const blob = await res.blob();
+
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `wallpaper-${Date.now()}.jpg`;
+    link.click();
+  };
+
   return (
     <>
-      <div className="group relative break-inside-auto mb-4 cursor-pointer ">
+      <div 
+        className="group relative break-inside-auto mb-4 cursor-pointer"
+        onClick={() => setShowPreview(true)}
+      >
+
         <div className="relative overflow-hidden rounded-lg bg-zinc-800">
+
           <img
             src={img.webformatURL}
-            className="w-full h-auto group-hover:scale-110 transition-transform duration-700 ease-in-out"
+            className="w-full h-auto group-hover:scale-110 transition duration-700"
             loading="lazy"
           />
-          <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/20 tp-transparent opacity-0 group-hover:opacity-100 transition-all duration-300">
-            <div className="absolute bottom-0 left-0 right-0 p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-full bg-linear-to-br from-violet-700 to-purple-700 flex items-center justify-center text-white text-sm font-extrabold">
-                    {img.user.charAt(0).toUpperCase()}
-                  </div>
-                  <span className="text-white text-sm font-bold">
-                    {img.user}
-                  </span>
-                </div>
 
-                <div className="flex items-center gap-3 text-white text-xs">
-                  <span className="flex items-center gap-1">
-                    <Heart
-                      size={15}
-                      fill="currentColor"
-                      className="text-red-400"
-                    />
-                    {img.likes}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Eye size={17} className="text-black-200 fontweight-bold" />
-                    {img.views}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
+          {/* Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition" />
 
-          <button>
-            <Download
-              size={35}
-              className="absolute top-2 right-2 bg-black/60 backdrop-blur text-white p-2 rounded-md  opacity-0 group-hover:opacity-100 transition hover:bg-black/50 cursor-pointer"
-            />
+          {/* ⬇ Download */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDownload(img.largeImageURL || img.webformatURL);
+            }}
+            className="absolute top-2 right-2 bg-black/60 text-white p-2 rounded-md opacity-0 group-hover:opacity-100"
+          >
+            <Download size={20} />
           </button>
+
+          {/* ❤️ Favorite */}
           <button
             onClick={(e) => {
               e.stopPropagation();
               onToggleFavorite(img);
             }}
-            className="absolute top-2 left-2 bg-black/50 bacdrop-blur text-white p-2 rounded-md hover:bg-black/30 transition opacity-0 group-hover:opacity-100 cursor-pointer"
+            className="absolute top-2 left-2 bg-black/60 text-white p-2 rounded-md opacity-0 group-hover:opacity-100"
           >
             <Heart
               size={20}
               fill={isFavorite ? "currentColor" : "none"}
-              stroke="white"
               className={isFavorite ? "text-red-500" : "text-white"}
             />
           </button>
+
+          {/* Stats */}
+          <div className="absolute bottom-2 left-2 right-2 flex justify-between text-white text-xs opacity-0 group-hover:opacity-100">
+            <span className="flex gap-1 items-center">
+              <Heart size={14} /> {img.likes}
+            </span>
+            <span className="flex gap-1 items-center">
+              <Eye size={14} /> {img.views}
+            </span>
+          </div>
         </div>
       </div>
+
+      {/* 🔥 Preview Modal (NOW CONNECTED TO FAVORITES) */}
+      {showPreview && (
+        <ImagePreviewModal
+          img={img}
+          onClose={() => setShowPreview(false)}
+          toggleFavorite={onToggleFavorite}
+          isFavorite={isFavorite}
+        />
+      )}
     </>
   );
 };
