@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Download, Heart, Eye } from "lucide-react";
 import ImagePreviewModal from "./ImagePreviewModal";
 
-const ImageCard = ({ img, onToggleFavorite, isFavorite }) => {
+const ImageCard = ({ img, index, images, onToggleFavorite, isFavorite }) => {
 
   const [showPreview, setShowPreview] = useState(false);
 
@@ -18,23 +18,20 @@ const ImageCard = ({ img, onToggleFavorite, isFavorite }) => {
 
   return (
     <>
-      <div 
+      <div
         className="group relative break-inside-auto mb-4 cursor-pointer"
         onClick={() => setShowPreview(true)}
       >
-
         <div className="relative overflow-hidden rounded-lg bg-zinc-800">
 
           <img
             src={img.webformatURL}
             className="w-full h-auto group-hover:scale-110 transition duration-700"
-            loading="lazy"
           />
 
-          {/* Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100" />
 
-          {/* ⬇ Download */}
+          {/* Download */}
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -45,7 +42,7 @@ const ImageCard = ({ img, onToggleFavorite, isFavorite }) => {
             <Download size={20} />
           </button>
 
-          {/* ❤️ Favorite */}
+          {/* Favorite */}
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -55,12 +52,11 @@ const ImageCard = ({ img, onToggleFavorite, isFavorite }) => {
           >
             <Heart
               size={20}
-              fill={isFavorite ? "currentColor" : "none"}
-              className={isFavorite ? "text-red-500" : "text-white"}
+              fill={isFavorite(img.id) ? "currentColor" : "none"}
+              className={isFavorite(img.id) ? "text-red-500" : "text-white"}
             />
           </button>
 
-          {/* Stats */}
           <div className="absolute bottom-2 left-2 right-2 flex justify-between text-white text-xs opacity-0 group-hover:opacity-100">
             <span className="flex gap-1 items-center">
               <Heart size={14} /> {img.likes}
@@ -72,10 +68,11 @@ const ImageCard = ({ img, onToggleFavorite, isFavorite }) => {
         </div>
       </div>
 
-      {/* 🔥 Preview Modal (NOW CONNECTED TO FAVORITES) */}
+      {/* 🔥 REAL SWIPE PREVIEW */}
       {showPreview && (
         <ImagePreviewModal
-          img={img}
+          images={images}     // 👉 FULL LIST
+          startIndex={index} // 👉 CLICKED IMAGE POSITION
           onClose={() => setShowPreview(false)}
           toggleFavorite={onToggleFavorite}
           isFavorite={isFavorite}

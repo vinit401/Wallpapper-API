@@ -1,12 +1,18 @@
-import React from "react";
-import { X, Heart, Eye, Download } from "lucide-react";
+import React, { useState } from "react";
+import { X, Heart, Eye, Download, ChevronLeft, ChevronRight } from "lucide-react";
 
-const ImagePreviewModal = ({ img, onClose, toggleFavorite, isFavorite }) => {
+const ImagePreviewModal = ({ images, startIndex, onClose, toggleFavorite, isFavorite }) => {
+
+  const [index, setIndex] = useState(startIndex);
+  const img = images[index];
 
   if (!img) return null;
 
-  const handleDownload = async () => {
-    const res = await fetch(img.largeImageURL || img.webformatURL);
+  const liked =
+    typeof isFavorite === "function" ? isFavorite(img.id) : false;
+
+  const handleDownload = async (url) => {
+    const res = await fetch(url);
     const blob = await res.blob();
 
     const link = document.createElement("a");
@@ -15,71 +21,76 @@ const ImagePreviewModal = ({ img, onClose, toggleFavorite, isFavorite }) => {
     link.click();
   };
 
-  const liked =
-    typeof isFavorite === "function" ? isFavorite(img.id) : false;
+  const next = () => {
+    if (index < images.length - 1) setIndex(index + 1);
+  };
+
+  const prev = () => {
+    if (index > 0) setIndex(index - 1);
+  };
 
   return (
-    <div className="fixed inset-0 bg-black/90 backdrop-blur flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50">
 
-      {/* ❌ Close */}
-      <button
-        onClick={onClose}
-        className="absolute top-5 right-5 text-white hover:text-red-400 transition"
-      >
-        <X size={35} />
+      <button onClick={onClose} className="absolute top-5 right-5 text-white">
+        <X size={35}/>
+      </button>
+
+      {/* Left */}
+      <button onClick={prev} className="absolute left-5 text-white">
+        <ChevronLeft size={45}/>
+      </button>
+
+      {/* Right */}
+      <button onClick={next} className="absolute right-5 text-white">
+        <ChevronRight size={45}/>
       </button>
 
       <div className="max-w-5xl w-full px-6">
 
-        {/* 🖼 Image */}
         <img
           src={img.largeImageURL || img.webformatURL}
-          className="w-full max-h-[75vh] object-contain rounded-lg shadow-xl"
+          className="w-full max-h-[75vh] object-contain rounded-lg"
         />
 
-        {/* 📊 Info Bar */}
-        <div className="flex items-center justify-between mt-5 text-white">
+        <div className="flex justify-between items-center mt-5 text-white">
 
-          {/* 👤 User */}
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center font-bold text-lg">
+          {/* User */}
+          <div className="flex gap-3 items-center">
+            <div className="w-10 h-10 bg-purple-700 rounded-full flex items-center justify-center font-bold">
               {img.user.charAt(0).toUpperCase()}
             </div>
-            <div>
-              <p className="font-bold">{img.user}</p>
-              <p className="text-sm text-gray-400">Photographer</p>
-            </div>
+            <p className="font-bold">{img.user}</p>
           </div>
 
-          {/* ❤️ 👀 ⬇ */}
-          <div className="flex items-center gap-6 text-sm">
+          {/* Actions */}
+          <div className="flex gap-5 items-center">
 
-            {/* LIKE */}
-            <button
-              onClick={() => toggleFavorite(img)}
-              className="flex items-center gap-1"
-            >
+            <button onClick={() => toggleFavorite(img)}>
               <Heart
-                size={18}
+                size={20}
                 fill={liked ? "currentColor" : "none"}
                 className={liked ? "text-red-500" : "text-white"}
               />
-              {img.likes}
             </button>
 
-            {/* VIEWS */}
-            <span className="flex items-center gap-1">
-              <Eye size={18} />
-              {img.views}
+            <span className="flex gap-1 items-center">
+              <Eye size={18}/> {img.views}
             </span>
 
-            {/* DOWNLOAD */}
+            {/* QUALITY DOWNLOAD */}
             <button
-              onClick={handleDownload}
-              className="flex items-center gap-2 bg-gradient-to-r from-violet-600 to-purple-700 px-5 py-2 rounded-md hover:opacity-90 transition"
+              onClick={()=>handleDownload(img.webformatURL)}
+              className="bg-zinc-700 px-3 py-1 rounded"
             >
-              <Download size={18} />
-              Download
+              Normal
+            </button>
+
+            <button
+              onClick={()=>handleDownload(img.largeImageURL)}
+              className="bg-purple-700 px-3 py-1 rounded"
+            >
+              HD
             </button>
 
           </div>

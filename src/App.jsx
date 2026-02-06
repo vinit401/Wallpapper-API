@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import Navbar from "./Components/images/layout/Navbar";
 import Categories from "./Components/images/layout/Categories";
 import ImageGrid from "./Components/images/ImageGrid";
+import SkeletonGrid from "./Components/images/SkeletonGrid";
 import { useImageFetch } from "./hook/useImageFetch";
-import LoadingSpinner from "./Components/images/layout/ui/LoadingSpinner";
 import { useInfiniteScroll } from "./hook/useInfiniteScroll";
 import { useFavorites } from "./hook/useFavorates";
 
@@ -26,7 +26,7 @@ const App = () => {
     resetImages,
   } = useImageFetch();
 
-  // 🔍 Load on search/category
+  // 🔍 Initial + search load
   useEffect(() => {
     fetchImages(query, 1, false);
   }, [query]);
@@ -83,8 +83,9 @@ const App = () => {
 
       <main className="max-w-6xl mx-auto px-8 py-8">
 
+        {/* 🔥 PREMIUM SKELETON LOADER */}
         {loading ? (
-          <LoadingSpinner />
+          <SkeletonGrid />
         ) : (
           <>
             {/* ⭐ EMPTY FAVORITES MESSAGE */}
@@ -100,6 +101,7 @@ const App = () => {
               />
             )}
 
+            {/* ♾ Load more animation */}
             {loadingMore && !shofavorite && (
               <div className="flex flex-col items-center py-12">
                 <div className="w-10 h-10 border-3 border-violet-500/30 border-t-violet-500 rounded-full animate-spin"></div>
