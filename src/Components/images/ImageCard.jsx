@@ -3,76 +3,79 @@ import { Download, Heart, Eye } from "lucide-react";
 import ImagePreviewModal from "./ImagePreviewModal";
 
 const ImageCard = ({ img, index, images, onToggleFavorite, isFavorite }) => {
-
   const [showPreview, setShowPreview] = useState(false);
 
   const handleDownload = async (url) => {
     const res = await fetch(url);
     const blob = await res.blob();
-
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `wallpaper-${Date.now()}.jpg`;
+    link.download = "wallpaper.jpg";
     link.click();
   };
 
   return (
     <>
+      {/* CARD */}
       <div
-        className="group relative break-inside-auto mb-4 cursor-pointer"
         onClick={() => setShowPreview(true)}
+        className="relative cursor-pointer rounded-xl overflow-hidden bg-zinc-800 mb-4"
       >
-        <div className="relative overflow-hidden rounded-lg bg-zinc-800">
-
+        {/* 🔥 FIXED IMAGE WRAPPER */}
+        <div className="relative w-full aspect-[4/5] sm:aspect-[3/4]">
           <img
             src={img.webformatURL}
-            className="w-full h-auto group-hover:scale-110 transition duration-700"
+            alt={img.tags}
+            loading="lazy"
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 hover:scale-110"
           />
+        </div>
 
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100" />
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition" />
 
-          {/* Download */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDownload(img.largeImageURL || img.webformatURL);
-            }}
-            className="absolute top-2 right-2 bg-black/60 text-white p-2 rounded-md opacity-0 group-hover:opacity-100"
-          >
-            <Download size={20} />
-          </button>
+        {/* ❤️ Favorite */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleFavorite(img);
+          }}
+          className="absolute top-2 left-2 bg-black/60 p-2 rounded-md"
+        >
+          <Heart
+            size={18}
+            fill={isFavorite(img.id) ? "currentColor" : "none"}
+            className={isFavorite(img.id) ? "text-red-500" : "text-white"}
+          />
+        </button>
 
-          {/* Favorite */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleFavorite(img);
-            }}
-            className="absolute top-2 left-2 bg-black/60 text-white p-2 rounded-md opacity-0 group-hover:opacity-100"
-          >
-            <Heart
-              size={20}
-              fill={isFavorite(img.id) ? "currentColor" : "none"}
-              className={isFavorite(img.id) ? "text-red-500" : "text-white"}
-            />
-          </button>
+        {/* ⬇ Download */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDownload(img.largeImageURL || img.webformatURL);
+          }}
+          className="absolute top-2 right-2 bg-black/60 p-2 rounded-md"
+        >
+          <Download size={18} className="text-white" />
+        </button>
 
-          <div className="absolute bottom-2 left-2 right-2 flex justify-between text-white text-xs opacity-0 group-hover:opacity-100">
-            <span className="flex gap-1 items-center">
-              <Heart size={14} /> {img.likes}
-            </span>
-            <span className="flex gap-1 items-center">
-              <Eye size={14} /> {img.views}
-            </span>
-          </div>
+        {/* Stats */}
+        <div className="absolute bottom-2 left-2 right-2 flex justify-between text-xs text-white">
+          <span className="flex gap-1 items-center">
+            <Heart size={14} /> {img.likes}
+          </span>
+          <span className="flex gap-1 items-center">
+            <Eye size={14} /> {img.views}
+          </span>
         </div>
       </div>
 
-      {/* 🔥 REAL SWIPE PREVIEW */}
+      {/* 🔍 PREVIEW */}
       {showPreview && (
         <ImagePreviewModal
-          images={images}     // 👉 FULL LIST
-          startIndex={index} // 👉 CLICKED IMAGE POSITION
+          images={images}
+          startIndex={index}
           onClose={() => setShowPreview(false)}
           toggleFavorite={onToggleFavorite}
           isFavorite={isFavorite}

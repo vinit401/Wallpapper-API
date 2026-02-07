@@ -25,6 +25,5 @@ export const useInfiniteScroll = (callback, dependencies) => {
     };
 
   }, dependencies); // 🔥 FIXED HERE
-  console.log("threshold =", ENV.INFINITE_SCROLL_THRESHOLD);
 
 };
